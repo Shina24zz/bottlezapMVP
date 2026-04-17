@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BottleZap
 
-## Getting Started
+Irish web app connecting businesses with empty deposit-return bottles to collectors who bring them to a DRS point (€0.15 per bottle).
 
-First, run the development server:
+**Stack:** Next.js 15 (App Router), Tailwind CSS, Supabase (auth + Postgres), Resend (email), Google Maps JavaScript API (`@vis.gl/react-google-maps`), deployable on Vercel.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Setup
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Clone and install**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+   ```bash
+   cd bottlezap
+   npm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Supabase**
 
-## Learn More
+   - Create a project at [supabase.com](https://supabase.com).
+   - In the SQL Editor, run the contents of `supabase/schema.sql`.
+   - Under Authentication → Providers, enable Email.
+   - For development, under Authentication → Email, you may disable “Confirm email” so sign-in works immediately.
 
-To learn more about Next.js, take a look at the following resources:
+3. **Environment**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   Copy `.env.example` to `.env.local` and fill in:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` from Project Settings → API.
+   - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` with **Maps JavaScript API** and **Geocoding API** enabled for the same key in Google Cloud Console.
+   - `RESEND_API_KEY` from [Resend](https://resend.com) (claim emails are skipped if missing).
+   - Optionally `RESEND_FROM_EMAIL` (verified domain in Resend; otherwise Resend’s test sender works for development).
 
-## Deploy on Vercel
+4. **Run**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   Open [http://localhost:3000](http://localhost:3000).
+
+## Deploy (Vercel)
+
+Add the same environment variables in the Vercel project settings. Connect the Git repo and deploy; no extra config is required for a standard Next.js app.
+
+## Roles
+
+- **Business:** posts listings (geocoded address), sees own listings, marks completed.
+- **Collector:** map + list of active listings, claims a pickup; business gets an email via Resend.
+
+## Legal / product note
+
+BottleZap is a demo-style marketplace. DRS rules, operator terms, and liability for transport and return are your responsibility in production.
