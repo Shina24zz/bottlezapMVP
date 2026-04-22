@@ -57,15 +57,19 @@ export function CollectorMap() {
   }
 
   return (
-    <div className="flex min-h-[70vh] flex-col gap-4 lg:flex-row">
-      <div className="relative min-h-[320px] flex-1 overflow-hidden rounded-2xl border border-bz-border bg-bz-accent-wash/50 shadow-inner shadow-bz-primary/5 lg:min-h-[560px]">
+    <div className="flex flex-col gap-4 lg:min-h-[70vh] lg:flex-row">
+      <div
+        className="relative h-[65vh] min-h-[420px] w-full flex-1 overflow-hidden rounded-2xl border border-bz-border bg-bz-accent-wash/50 shadow-inner shadow-bz-primary/5 lg:h-auto lg:min-h-[560px]"
+        style={{ WebkitTransform: "translateZ(0)" }}
+      >
         <APIProvider apiKey={apiKey} version="weekly">
           <Map
             defaultCenter={DUBLIN_CENTER}
             defaultZoom={12}
             gestureHandling="greedy"
             disableDefaultUI={false}
-            className="h-full min-h-[320px] w-full lg:min-h-[560px]"
+            className="h-full w-full"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
           >
             {listings.map((l) => (
               <Marker
