@@ -51,27 +51,59 @@ export async function POST(request: Request) {
     .single();
 
   if (fetchError || !listing) {
+    console.error("[claim] failed to load listing for email", fetchError);
     return NextResponse.json({ ok: true, emailed: false });
   }
 
   const apiKey = process.env.RESEND_API_KEY;
   const from =
-    process.env.RESEND_FROM_EMAIL ?? "BottleZap <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL ?? "BottleZap <noreply@bottlezap.ie>";
 
-  if (apiKey && listing.business_email) {
+  const rawEmail =
+    typeof listing.business_email === "string" ? listing.business_email.trim() : "";
+  const businessEmail = rawEmail.length > 0 ? rawEmail : null;
+
+  let emailed = false;
+  let emailError: string | null = null;
+
+  if (!apiKey) {
+    console.warn(
+      "[claim] RESEND_API_KEY is not set; skipping business notification email.",
+    );
+  } else if (!businessEmail) {
+    console.warn(
+      `[claim] listing ${listingId} has no business_email; cannot send notification.`,
+    );
+  } else {
     const resend = new Resend(apiKey);
     const bottleCount = listing.bottle_count as number;
     const businessName = listing.business_name as string;
-    await resend.emails.send({
-      from,
-      to: listing.business_email,
-      subject: "Someone is coming to collect your bottles!",
-      text:
-        `Great news! A collector has claimed your listing at ${businessName} and is on their way. ` +
-        `They will collect ${bottleCount} bottles. ` +
-        `Listing will be marked as completed once done.`,
-    });
+    try {
+      const { data, error } = await resend.emails.send({
+        from,
+        to: businessEmail,
+        replyTo: "support@bottlezap.ie",
+        subject: "Someone is coming to collect your bottles!",
+        text:
+          `Great news! A collector has claimed your listing at ${businessName} and is on their way. ` +
+          `They will collect ${bottleCount} bottles. ` +
+          `The listing will be marked as completed once the pickup is done.\n\n` +
+          `— BottleZap`,
+      });
+      if (error) {
+        emailError = error.message ?? "Resend returned an error";
+        console.error("[claim] Resend send error", error);
+      } else {
+        emailed = true;
+        console.log(
+          `[claim] sent notification to ${businessEmail} (id=${data?.id ?? "?"})`,
+        );
+      }
+    } catch (err) {
+      emailError = err instanceof Error ? err.message : "Unknown email error";
+      console.error("[claim] Resend threw", err);
+    }
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, emailed, emailError });
 }

@@ -27,7 +27,7 @@ Irish web app connecting businesses with empty deposit-return bottles to collect
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` from Project Settings → API.
    - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` with **Maps JavaScript API** and **Geocoding API** enabled for the same key in Google Cloud Console.
    - `RESEND_API_KEY` from [Resend](https://resend.com) (claim emails are skipped if missing).
-   - Optionally `RESEND_FROM_EMAIL` (verified domain in Resend; otherwise Resend’s test sender works for development).
+   - `RESEND_FROM_EMAIL` must be a verified sender on a domain you own in Resend. Production uses `BottleZap <noreply@bottlezap.ie>`. The shared `onboarding@resend.dev` address will NOT deliver to arbitrary business inboxes — Resend only allows it to send to the account owner — so real business email addresses won't receive claim notifications unless you verify `bottlezap.ie` (or your own domain) in Resend and set this variable accordingly.
 
 4. **Run**
 
